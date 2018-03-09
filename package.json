@@ -7,9 +7,7 @@
     "test": "",
     "build": "webpack --config build/webpack.prod.js",
     "dev": "node build/server.js",
-    "embark-rinkeby": "NODE_ENV=production embark run rinkeby --nodashboard",
-    "rinkeby-node": "geth --rpc --rinkeby --syncmode 'fast' --unlock '0x80f66D2E0eaFa73910ED0B5d411640b48d23B838'",
-    "web-deploy": "git subtree push --prefix web origin master"
+    "deploy": "git subtree push --prefix web origin master"
   },
   "author": "Carl Larson <cslarson@gmail.com>",
   "license": "MIT",
