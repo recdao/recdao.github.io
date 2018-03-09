@@ -1,0 +1,93 @@
+<template>
+  <div>
+    <div v-if="!!username">{{username}}, you're registered. You have {{balance}} REC.</div>
+    <div v-else-if="!!match">
+      <p>{{match[0]}}, you will receive {{match[1]}} REC Tokens upon registration.</p>
+      <v-btn color="primary" large v-on:click="register">Register</v-btn>
+    </div>
+    <div v-else>
+      <p>{{`Your Ethereum account (${account}) does not match any that was pre-registered.`}}</p>
+      <v-select
+        v-bind:items="lookup"
+        v-model="selected"
+        return-object
+        label="Find pre-registration account"
+        autocomplete
+      ></v-select>
+      <p v-if="selected">{{`${selected.text} pre-registered with the account: ${selected.value}`}}</p>
+    </div>
+  </div>
+</template>
+
+<script>
+import Token from 'contracts/Token';
+import RECDAO from 'contracts/RECDAO';
+import Registry from 'contracts/Registry';
+import userRegInputs from 'data/userRegInputs'
+import unique from 'array-unique'
+
+export default {
+  components: {
+  },
+  data: function () {
+    return {
+      lookup: userRegInputs.map(u=>({text: u[0], value: u[5]})).sort((a,b)=>a.text.localeCompare(b.text)),
+      selected: null,
+      // txHash: null,
+      // registering: false,
+      // fail: false
+    }
+  },
+  methods: {
+    register(e) {
+      e.preventDefault();
+      this.$store.dispatch("addTransaction", {
+        label: "Register",
+        promise: ()=>RECDAO.methods.register(...this.regArgs).send({from: this.account, gas: 250000}),
+        success: ()=>this.$store.dispatch("setUsername")
+      });
+    },
+    validate(e) {
+      e.preventDefault();
+      console.log(this.regArgs, this.account)
+      return RECDAO.methods.validate(...this.regArgs)
+        .call({from: this.account})
+        .then(res=>console.log(res))
+        .catch(err=>{
+          throw err;
+        });
+    },
+    hash(e) {
+      e.preventDefault();
+      console.log(this.regArgs, this.account)
+      return RECDAO.methods.hash(...this.regArgs)
+        .call({from: this.account})
+        .then(res=>console.log(res))
+        .catch(err=>{
+          throw err;
+        });
+    }
+  },
+  computed: {
+    account(){ return this.$store.state.account; },
+    balance(){ return this.$store.state.balance; },
+    network(){ return this.$store.state.network; },
+    username(){ return this.$store.state.username; },
+    match(){ return this.account && userRegInputs.find(u=>u[5].toLowerCase() === this.account.toLowerCase()); },
+    regArgs(){
+      let data = this.match.slice(0,-1);
+      data[0] = web3.utils.fromAscii(data[0]);
+      return data;
+    }
+  },
+  created() {
+    RECDAO.methods.roots(0).call({from: this.account})
+      .then(res=>console.log(res));
+  }
+}
+
+</script>
+
+<style>
+
+</style>
