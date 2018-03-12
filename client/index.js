@@ -6,14 +6,19 @@ if (process.env.NODE_ENV === 'production') {
   require('./pwa')
 }
 
-setDefaultAccount()
+store.dispatch("setWeb3")
+  .then(()=>store.dispatch("setContracts"))
+  .then(setDefaultAccount)
   .then(()=>store.dispatch("setNetwork"))
   .then(()=>store.dispatch("setDAOValues"))
   .then(()=>store.dispatch("setProposals"))
   .then(()=>store.dispatch("setDecimals"))
   .then(()=>store.dispatch("setBalance"))
   .then(()=>store.dispatch("setSupply"))
-  .then(()=>app.$mount('#app'));
+  .then(poll)
+  .catch(console.warn)
+  .then(()=>app.$mount('#app'))
+  .then(()=>setInterval(poll, 2000));
 
 function setDefaultAccount(){
   return web3.eth.getAccounts()

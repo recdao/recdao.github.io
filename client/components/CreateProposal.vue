@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import RECDAO from 'contracts/RECDAO';
+// import RECDAO from 'contracts/RECDAO';
 import {DAO_ACTIONS as actions} from '../constants.json';
 
 export default {
@@ -58,7 +58,8 @@ export default {
   },
   computed: {
     account(){ return this.$store.state.account; },
-    username(){ return this.$store.state.username; }
+    username(){ return this.$store.state.username; },
+    RECDAO(){ return this.$store.state.contracts.RECDAO; }
   },
   methods: {
     submit(e) {
@@ -66,7 +67,7 @@ export default {
       console.log("ADD PROP", web3.utils.toHex(this.actionIdx), this.textData)
       this.$store.dispatch("addTransaction", {
         label: "Create Proposal",
-        promise: ()=>RECDAO.methods.addProp(web3.utils.toHex(this.actionIdx), this.textData).send({from: this.account, gas: 250000}),
+        promise: ()=>this.RECDAO.methods.addProp(web3.utils.toHex(this.actionIdx), this.textData).send({from: this.account, gas: 250000}),
         success: ()=>this.$store.dispatch("setProposals")
       });
       this.dialog=false;

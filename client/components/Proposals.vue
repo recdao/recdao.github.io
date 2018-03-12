@@ -26,7 +26,6 @@
 </template>
 
 <script>
-import RECDAO from 'contracts/RECDAO';
 import Proposal from 'components/Proposal';
 
 export default {

@@ -1,8 +1,12 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import Registry from 'contracts/Registry';
-import Token from 'contracts/Token';
-import RECDAO from 'contracts/RECDAO';
+import Web3 from 'web3';
+// import Registry from 'contracts/Registry';
+// import Token from 'contracts/Token';
+// import RECDAO from 'contracts/RECDAO';
+import RECDAOArtifacts from 'artifacts/RECDAO.json';
+import RegistryArtifacts from 'artifacts/Registry.json';
+import TokenArtifacts from 'artifacts/Token.json';
 import { NETWORKS } from '../constants.json';
 import { bufferToHex, toBuffer, setLengthRight } from 'ethereumjs-util';
 
@@ -18,7 +22,9 @@ const state = {
   supply: null,
   username: null,
   transactions: [],
-  daoValues: {}
+  daoValues: {},
+  contracts: {},
+  web3: null
 }
 
 const mutations = {
@@ -27,6 +33,9 @@ const mutations = {
   },
   SET_BALANCE (state, balance) {
     state.balance = balance;
+  },
+  SET_CONTRACTS (state, contracts) {
+    state.contracts = contracts;
   },
   SET_DECIMALS (state, decimals) {
     state.decimals = decimals;
@@ -51,6 +60,9 @@ const mutations = {
   },
   SET_TRANSACTIONS (state, transactions) {
     state.transactions = transactions;
+  },
+  SET_WEB3 (state, web3) {
+    state.web3 = web3;
   }
 }
 
@@ -65,13 +77,22 @@ const actions = {
     commit("SET_ACCOUNT", account);
     return dispatch("setUsername");
   },
+  setContracts ({commit, dispatch, state}) {
+    let contracts = [TokenArtifacts, RECDAOArtifacts, RegistryArtifacts].reduce((prev, artifacts)=>{
+      prev[artifacts.contractName] = new web3.eth.Contract(artifacts.abi, artifacts.networks["4"].address);
+      return prev;
+    }, {});
+    commit("SET_CONTRACTS", contracts);
+  },
   setUsername ({ commit, dispatch, state }) {
+    let {Registry} = state.contracts;
     return Registry.methods.ownerToUsername(state.account).call()
       .then(web3.utils.hexToUtf8)
       .then(username=>commit("SET_USERNAME", username))
       .then(()=>dispatch("setBalance"));
   },
   setProposals ({ commit, state }) {
+    let {RECDAO} = state.contracts;
     return RECDAO.methods.getPropsStatic().call()
       .then(res=>{console.log(typeof res[0][0]); return res;})
       .then(res=>res[0].map(Number).map((action, idx)=>({
@@ -117,6 +138,7 @@ const actions = {
     commit("SET_TRANSACTIONS", transactions);
   },
   setDAOValues ({ commit, state }) {
+    let {RECDAO} = state.contracts;
     return Promise.all([
       RECDAO.methods.PROP_STAKE().call(),
       RECDAO.methods.SIG_VOTE().call(),
@@ -128,12 +150,15 @@ const actions = {
     .then(([PROP_STAKE, SIG_VOTE, SIG_VOTE_DELAY, PROP_DURATION, MIN_PASS])=>commit("SET_DAO_VALUES", {PROP_STAKE, SIG_VOTE, SIG_VOTE_DELAY, PROP_DURATION, MIN_PASS}));
   },
   setDecimals ({ commit, state }) {
+    let {Token} = state.contracts;
     return Token.methods.decimals().call().then(res=>commit("SET_DECIMALS", res));
   },
   setBalance ({ commit, state }) {
+    let {Token} = state.contracts;
     return Token.methods.balanceOf(state.account).call().then(res=>commit("SET_BALANCE", res/Math.pow(10, state.decimals)));
   },
   setSupply ({ commit, state }) {
+    let {Token} = state.contracts;
     return Token.methods.totalSupply().call().then(res=>commit("SET_SUPPLY", res/Math.pow(10, state.decimals)));
   },
   setNetwork ({ commit, state }) {
@@ -154,6 +179,18 @@ const actions = {
             return commit("SET_NETWORK", NETWORKS.OTHER);
         }
       });
+  },
+  setWeb3 ({ commit, state }) {
+    return new Promise((resolve, reject)=>{
+      if (typeof web3 !== 'undefined') {
+        console.log('Web3 injected browser: OK.')
+        window.web3 = new Web3(window.web3.currentProvider);
+        commit("SET_WEB3", window.web3)
+        resolve(web3);
+      } else {
+        reject("Web3 not found. Install the MetaMask browser plugin or use a dapp browser like Mist.")
+      }
+    })
   }
 }
 

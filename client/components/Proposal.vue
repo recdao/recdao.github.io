@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import RECDAO from 'contracts/RECDAO';
+// import RECDAO from 'contracts/RECDAO';
 import {DAO_ACTIONS as actions} from '../constants.json';
 
 export default {
@@ -91,20 +91,21 @@ export default {
         remaining = this.proposal.lastSigVoteAt + SIG_VOTE_DELAY - this.blockNum;
       console.log(remaining)
       return remaining > 0 ? remaining : 0;
-    }
+    },
+    RECDAO(){ return this.$store.state.contracts.RECDAO; }
   },
   methods: {
     vote(prefId){
       this.$store.dispatch("addTransaction", {
         label: `Vote ${prefId} @prop:${this.proposal.id}`,
-        promise: ()=>RECDAO.methods.vote(this.proposal.id, prefId).send({from: this.account, gas: 200000}),
+        promise: ()=>this.RECDAO.methods.vote(this.proposal.id, prefId).send({from: this.account, gas: 200000}),
         success: ()=>this.$store.dispatch("setProposals")
       });
     },
     enact(){
       this.$store.dispatch("addTransaction", {
         label: `Enact @prop:${this.proposal.id}`,
-        promise: ()=>RECDAO.methods.enact(this.proposal.id).send({from: this.account, gas: 200000}),
+        promise: ()=>this.RECDAO.methods.enact(this.proposal.id).send({from: this.account, gas: 200000}),
         success: ()=>this.$store.dispatch("setProposals")
       });
     }

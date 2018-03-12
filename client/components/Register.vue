@@ -20,9 +20,7 @@
 </template>
 
 <script>
-import Token from 'contracts/Token';
-import RECDAO from 'contracts/RECDAO';
-import Registry from 'contracts/Registry';
+// import RECDAO from 'contracts/RECDAO';
 import userRegInputs from 'data/userRegInputs'
 import unique from 'array-unique'
 
@@ -43,14 +41,14 @@ export default {
       e.preventDefault();
       this.$store.dispatch("addTransaction", {
         label: "Register",
-        promise: ()=>RECDAO.methods.register(...this.regArgs).send({from: this.account, gas: 250000}),
+        promise: ()=>this.RECDAO.methods.register(...this.regArgs).send({from: this.account, gas: 250000}),
         success: ()=>this.$store.dispatch("setUsername")
       });
     },
     validate(e) {
       e.preventDefault();
       console.log(this.regArgs, this.account)
-      return RECDAO.methods.validate(...this.regArgs)
+      return this.RECDAO.methods.validate(...this.regArgs)
         .call({from: this.account})
         .then(res=>console.log(res))
         .catch(err=>{
@@ -60,7 +58,7 @@ export default {
     hash(e) {
       e.preventDefault();
       console.log(this.regArgs, this.account)
-      return RECDAO.methods.hash(...this.regArgs)
+      return this.RECDAO.methods.hash(...this.regArgs)
         .call({from: this.account})
         .then(res=>console.log(res))
         .catch(err=>{
@@ -78,10 +76,11 @@ export default {
       let data = this.match.slice(0,-1);
       data[0] = web3.utils.fromAscii(data[0]);
       return data;
-    }
+    },
+    RECDAO(){ return this.$store.state.contracts.RECDAO; }
   },
   created() {
-    RECDAO.methods.roots(0).call({from: this.account})
+    this.RECDAO.methods.roots(0).call({from: this.account})
       .then(res=>console.log(res));
   }
 }

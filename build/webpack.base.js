@@ -33,9 +33,6 @@ module.exports = {
       artifacts: path.join(__dirname, '../contracts/build/contracts'),
       contracts: path.join(__dirname, '../client/contracts'),
       data: path.join(__dirname, '../contracts/data')
-      // 'Embark/EmbarkJS': path.join(__dirname, '../.embark/embark.js'),
-      // 'Embark/web3': path.join(__dirname, '../.embark/web3_instance.js'),
-      // 'Embark/contracts': path.join(__dirname, '../dist/contracts'),
     },
     modules: [
       _.cwd('node_modules'),
