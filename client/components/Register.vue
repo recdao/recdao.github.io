@@ -6,7 +6,8 @@
       <v-btn color="primary" large v-on:click="register">Register</v-btn>
     </div>
     <div v-else>
-      <p>{{`Your Ethereum account (${account}) does not match any that was pre-registered.`}}</p>
+      <p>{{`Your Ethereum account (${account}) does not match any that were pre-registered.`}}</p>
+      <p>{{`If you have not pre-registered you can do so `}}<a target="_blank" href="https://www.reddit.com/message/compose/?to=EthRegBot&message=!ethreg%200xANETHADDRESSHERE&subject=pre-register">here</a>{{` and then wait a short while for a new registration period to be voted open. Please `}}<a target="_blank" href="https://www.reddit.com/message/compose/?to=carlslarson&subject=recdao">dm u/carlslarson</a>{{` or see the `}}<a target="_blank" href="https://www.reddit.com/r/recdao/comments/83wdeq/faq/">FAQ</a>{{` with any questions.`}}</p>
       <v-select
         v-bind:items="lookup"
         v-model="selected"
