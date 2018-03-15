@@ -81,7 +81,8 @@ export default {
     RECDAO(){ return this.$store.state.contracts.RECDAO; }
   },
   created() {
-    this.RECDAO.methods.roots(0).call({from: this.account})
+    let currentRootIdx = userRegInputs[0][4];
+    this.RECDAO.methods.roots(currentRootIdx).call({from: this.account})
       .then(res=>console.log(res));
   }
 }
