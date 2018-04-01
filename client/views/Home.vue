@@ -11,6 +11,7 @@
     </div>
     <div v-else>
       <register></register>
+      <hr style="margin: 2rem 0"/>
       <create-proposal></create-proposal>
       <h3>Proposals</h3>
       <proposals></proposals>

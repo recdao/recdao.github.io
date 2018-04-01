@@ -1,6 +1,10 @@
 <template>
   <div>
-    <div v-if="!!username">{{username}}, you're registered. You have {{balance}} REC.</div>
+    <div v-if="!!username">
+      <p>{{username}}, you're registered. You have {{balance}} REC.</p>
+      <p>You currently have {{match[1]}} karma. If you haven't already during this registration period, you can re-register to update your karma and claim the difference in new REC.</p>
+      <v-btn color="primary" v-on:click="register">Register</v-btn>
+    </div>
     <div v-else-if="!!match">
       <p>{{match[0]}}, you will receive {{match[1]}} REC Tokens upon registration.</p>
       <v-btn color="primary" large v-on:click="register">Register</v-btn>
