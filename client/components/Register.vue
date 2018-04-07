@@ -86,6 +86,7 @@ export default {
   },
   created() {
     let currentRootIdx = userRegInputs[0][4];
+    console.log(`rootIdx:${currentRootIdx}`);
     this.RECDAO.methods.roots(currentRootIdx).call({from: this.account})
       .then(res=>console.log(res));
   }
